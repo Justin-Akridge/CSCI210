@@ -6,8 +6,10 @@
 #include <string>
 #include <cassert>
 
-enum Gender {Male, Female};
-
+//	char formatDate[80];
+//	time_t currentDate = time(NULL);
+//	strftime(formatDate, 80, "%F", localtime(&currentDate)); // for date and time "%F %T"
+//	string inv_date(formatDate);
 class Participant {
 public:
   void set_firstname(std::string fname) {
@@ -22,12 +24,13 @@ public:
     age = init_age;
   }
 
-  void set_gender(Gender gender) {
-    assert(gender == Female || gender == Male);
-    if (gender == Female) 
-      gender = Female;
-    else
-      gender = Male;
+  void set_participant_number(int init_participant_number) {
+    participant_number = init_participant_number;
+  }
+
+  void set_gender(std::string gender_type) {
+    assert(gender_type == "female" || gender_type == "male");
+    gender = gender_type;
   }
 
   std::string get_name() {
@@ -37,10 +40,6 @@ public:
 
   int get_age() {
     return age;
-  }
-
-  Gender get_gender() {
-    return gender;
   }
 
   bool operator==(Participant const& participant) {
@@ -54,21 +53,24 @@ public:
     }
   }
 
-  // TODO [] fix this
-  //std::ostream& operator<<(std::ostream& out, const Participant& participant) {
-  //  return out << participant.get_name() << '\n';
-  //}
-  
-  
-  void display() {
-    std::cout << "name: " << get_name() << '\n';
+  friend std::ostream& operator<<(std::ostream& out, Participant& participant) {
+    return out << "Participant Number: " << participant.participant_number << '\n'
+               << "First name: "         << participant.first_name         << '\n'
+               << "Last name: "          << participant.last_name          << '\n'
+               << "Age: "                << participant.age                << '\n'
+               << "Gender: "             << participant.gender             << '\n';
   }
 
+  void print() {
+    std::cout << "Gender: " << gender << '\n';
+  }
+  
 private:
+  int participant_number;
   std::string first_name;
   std::string last_name;
   int age;
-  Gender gender;
+  std::string gender;
 };
 
 
@@ -97,16 +99,16 @@ int get_age(Participant& participant) {
   return age;
 }
 
-Gender get_gender(Participant& participant) {
+std::string get_gender(Participant& participant) {
   while (true) {
     char gender;
-    std::cout << "Enter " << participant.get_name() << "'s you gender [m/f]: ";
+    std::cout << "Enter " << participant.get_name() << "'s gender [m/f]: ";
     std::cin >> gender;
     gender = std::tolower(gender);
     if (gender == 'm') {
-      return Male;
+      return "male";
     } else if (gender == 'f') {
-      return Female;
+      return "female";
     } else {
       std::cerr << "Input was invalid. Please enter a [m] for male and [f] for female. Try again.\n";
     }
@@ -114,6 +116,7 @@ Gender get_gender(Participant& participant) {
 }
 
 int main() {
+  static int participant_number = 0;
   static std::vector<Participant> participants;
   int option = 0;
   while (option != 4) {
@@ -128,11 +131,18 @@ int main() {
       case 1:
         {
           Participant new_participant;
+          new_participant.set_participant_number(participant_number);
+          participant_number++;
           new_participant.set_firstname(get_first_name());
           new_participant.set_lastname(get_last_name());
           new_participant.set_age(get_age(new_participant));
           new_participant.set_gender(get_gender(new_participant));
-          participants.push_back(new_participant);
+
+          // write participant to file
+          std::ofstream participants_file;
+          participants_file.open("participant.dat", std::ios::app);
+          participants_file << new_participant;
+          new_participant.print();
           std::cout << '\n';
           break;
         }
@@ -149,7 +159,7 @@ int main() {
           std::cerr << "You must first add participants. Press one to add a new participant\n";
         } else {
           for (auto &participant : participants) {
-            participant.display();
+            std::cout << participant;
           }
         }
         break;
