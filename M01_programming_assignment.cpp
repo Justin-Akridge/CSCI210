@@ -53,12 +53,19 @@ public:
     }
   }
 
+  friend std::istream& operator>>(std::istream& in, const Participant& participant) {
+    in.read((char*)&participant, sizeof(Participant));
+    return in;
+  }
+
   friend std::ostream& operator<<(std::ostream& out, Participant& participant) {
-    return out << "Participant Number: " << participant.participant_number << '\n'
-               << "First name: "         << participant.first_name         << '\n'
-               << "Last name: "          << participant.last_name          << '\n'
-               << "Age: "                << participant.age                << '\n'
-               << "Gender: "             << participant.gender             << '\n';
+    //return out << "Participant Number: " << participant.participant_number << '\n'
+    //           << "First name: "         << participant.first_name         << '\n'
+    //           << "Last name: "          << participant.last_name          << '\n'
+    //           << "Age: "                << participant.age                << '\n'
+    //           << "Gender: "             << participant.gender             << '\n';
+    out.write((char*)&participant, sizeof(Participant));
+    return out;
   }
 
   void print() {
@@ -139,22 +146,24 @@ int main() {
           new_participant.set_gender(get_gender(new_participant));
 
           // write participant to file
-          std::ofstream participants_file;
-          participants_file.open("participant.dat", std::ios::app);
+          std::ofstream participants_file("participant.dat", std::ios::binary | std::ios::app);
           participants_file << new_participant;
+          participants_file.close();
           new_participant.print();
           std::cout << '\n';
           break;
         }
       case 2:
-       // if (participants.is_empty()) {
-       //   std::cerr << "You must first add participants. Press one to add a new participant\n";
-       //   break;
-       // } else {
-       //   break;
-       // }
-        break;
+        {
+          std::ifstream input_file("participant.dat", std::ios::binary);
+          Participant participant;
+          while (input_file >> participant && !input_file.eof()) {
+            std::cout << participant;
+          }
+          break;
+        }
       case 3:
+
         if (participants.empty()) {
           std::cerr << "You must first add participants. Press one to add a new participant\n";
         } else {
