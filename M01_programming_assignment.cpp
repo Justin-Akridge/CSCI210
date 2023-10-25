@@ -42,6 +42,10 @@ public:
     return age;
   }
 
+  std::string get_gender() {
+    return gender;
+  }
+
   bool operator==(Participant const& participant) {
     if (this->first_name == participant.first_name &&
         this->last_name  == participant.last_name  &&
@@ -53,18 +57,20 @@ public:
     }
   }
 
-  friend std::istream& operator>>(std::istream& in, const Participant& participant) {
-    in.read((char*)&participant, sizeof(Participant));
+  friend std::istream& operator>>(std::istream& in, Participant& participant) {
+    in >> participant.first_name
+       >> participant.last_name
+       >> participant.age
+       >> participant.gender;
     return in;
   }
 
   friend std::ostream& operator<<(std::ostream& out, Participant& participant) {
-    //return out << "Participant Number: " << participant.participant_number << '\n'
-    //           << "First name: "         << participant.first_name         << '\n'
-    //           << "Last name: "          << participant.last_name          << '\n'
-    //           << "Age: "                << participant.age                << '\n'
-    //           << "Gender: "             << participant.gender             << '\n';
-    out.write((char*)&participant, sizeof(Participant));
+    out << participant.participant_number << '\n'
+        << participant.first_name         << '\n'
+        << participant.last_name          << '\n'
+        << participant.age                << '\n'
+        << participant.gender             << '\n';
     return out;
   }
 
@@ -155,9 +161,9 @@ int main() {
         }
       case 2:
         {
-          std::ifstream input_file("participant.dat", std::ios::binary);
+          std::ifstream input_file("participant.dat", std::ios::in);
           Participant participant;
-          while (input_file >> participant && !input_file.eof()) {
+          while (input_file >> participant) {
             std::cout << participant;
           }
           break;
