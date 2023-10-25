@@ -58,14 +58,12 @@ public:
   }
 
   friend std::istream& operator>>(std::istream& in, Participant& participant) {
-    in >> participant.first_name
-       >> participant.last_name
-       >> participant.age
+    in >> participant.first_name >> participant.last_name >> participant.age
        >> participant.gender;
     return in;
   }
 
-  friend std::ostream& operator<<(std::ostream& out, Participant& participant) {
+  friend std::ostream& operator<<(std::ostream& out, const Participant& participant) {
     out << participant.participant_number << '\n'
         << participant.first_name         << '\n'
         << participant.last_name          << '\n'
@@ -74,10 +72,6 @@ public:
     return out;
   }
 
-  void print() {
-    std::cout << "Gender: " << gender << '\n';
-  }
-  
 private:
   int participant_number;
   std::string first_name;
@@ -152,20 +146,24 @@ int main() {
           new_participant.set_gender(get_gender(new_participant));
 
           // write participant to file
-          std::ofstream participants_file("participant.dat", std::ios::binary | std::ios::app);
+          std::ofstream participants_file("participant.dat");
           participants_file << new_participant;
           participants_file.close();
-          new_participant.print();
           std::cout << '\n';
           break;
         }
       case 2:
         {
-          std::ifstream input_file("participant.dat", std::ios::in);
+          std::ifstream input_file("participant.dat");
           Participant participant;
-          while (input_file >> participant) {
-            std::cout << participant;
-          }
+          input_file >> participant;
+          input_file.close();
+          std::cout << "Name: " << participant.get_name() << '\n' << "Age: " << participant.get_age() << '\n' << "Gender: " << participant.get_gender();
+          //std::ifstream input_file("participant.dat", std::ios::in);
+          //Participant participant;
+          //while (input_file >> participant) {
+          //  std::cout << participant;
+          //}
           break;
         }
       case 3:
