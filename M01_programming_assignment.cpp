@@ -10,6 +10,7 @@
 //	time_t currentDate = time(NULL);
 //	strftime(formatDate, 80, "%F", localtime(&currentDate)); // for date and time "%F %T"
 //	string inv_date(formatDate);
+
 class Participant {
 public:
   void set_firstname(std::string fname) {
@@ -33,7 +34,7 @@ public:
     gender = gender_type;
   }
 
-  std::string get_name() {
+  std::string get_name() const {
     std::string name = this->first_name + " " + this->last_name;
     return name;
   }
@@ -44,17 +45,6 @@ public:
 
   std::string get_gender() {
     return gender;
-  }
-
-  bool operator==(Participant const& participant) {
-    if (this->first_name == participant.first_name &&
-        this->last_name  == participant.last_name  &&
-        this->age        == participant.age        &&
-        this->gender     == participant.gender) {
-      return true;
-    } else {
-      return false;
-    }
   }
 
   friend std::istream& operator>>(std::istream& in, Participant& participant) {
@@ -70,6 +60,10 @@ public:
         << participant.age                << '\n'
         << participant.gender             << '\n';
     return out;
+  }
+
+  void display() {
+    std::cout << "Name: " << first_name + last_name << "\nAge: " << age << "\nGender: " << gender << '\n';
   }
 
 private:
@@ -146,24 +140,31 @@ int main() {
           new_participant.set_gender(get_gender(new_participant));
 
           // write participant to file
-          std::ofstream participants_file("participant.dat");
-          participants_file << new_participant;
+          std::ofstream participants_file("participant.dat", std::ios::binary);
+          participants_file.write(reinterpret_cast<const char*> (&new_participant), sizeof(Participant));
           participants_file.close();
           std::cout << '\n';
           break;
         }
       case 2:
         {
+          std::vector<Participant> participants;
           std::ifstream input_file("participant.dat");
+          if (!input_file) {
+            std::cerr << "The file does not exist!\n";
+            return 1;
+          }
           Participant participant;
-          input_file >> participant;
-          input_file.close();
-          std::cout << "Name: " << participant.get_name() << '\n' << "Age: " << participant.get_age() << '\n' << "Gender: " << participant.get_gender();
-          //std::ifstream input_file("participant.dat", std::ios::in);
-          //Participant participant;
-          //while (input_file >> participant) {
-          //  std::cout << participant;
-          //}
+          while (input_file) {
+            input_file.read(reinterpret_cast<char *> (&participant), sizeof(Participant));
+            participants.push_back(participant);
+            //participant.display();
+          }
+
+         // for (auto &participant : participants) {
+         //   participant.display();
+         // }
+         // input_file.close();
           break;
         }
       case 3:
