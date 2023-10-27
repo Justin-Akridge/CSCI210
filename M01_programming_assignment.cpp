@@ -11,114 +11,88 @@
 //	strftime(formatDate, 80, "%F", localtime(&currentDate)); // for date and time "%F %T"
 //	string inv_date(formatDate);
 
-class Participant {
-public:
-  void set_firstname(std::string fname) {
-    first_name = fname;
-  }
-
-  void set_lastname(std::string lname) {
-    last_name = lname;
-  }
-
-  void set_age(int init_age) {
-    age = init_age;
-  }
-
-  void set_participant_number(int init_participant_number) {
-    participant_number = init_participant_number;
-  }
-
-  void set_gender(std::string gender_type) {
-    assert(gender_type == "female" || gender_type == "male");
-    gender = gender_type;
-  }
-
-  std::string get_name() const {
-    std::string name = this->first_name + " " + this->last_name;
-    return name;
-  }
-
-  int get_age() {
-    return age;
-  }
-
-  std::string get_gender() {
-    return gender;
-  }
-
-  friend std::istream& operator>>(std::istream& in, Participant& participant) {
-    in >> participant.first_name >> participant.last_name >> participant.age
-       >> participant.gender;
-    return in;
-  }
-
-  friend std::ostream& operator<<(std::ostream& out, const Participant& participant) {
-    out << participant.participant_number << '\n'
-        << participant.first_name         << '\n'
-        << participant.last_name          << '\n'
-        << participant.age                << '\n'
-        << participant.gender             << '\n';
-    return out;
-  }
-
-  void display() {
-    std::cout << "Name: " << first_name + last_name << "\nAge: " << age << "\nGender: " << gender << '\n';
-  }
-
-private:
-  int participant_number;
+struct Participant {
+  int id;
   std::string first_name;
   std::string last_name;
   int age;
   std::string gender;
+  friend std::ostream& operator<<(std::ostream& out, const Participant& participant) {
+    out << participant.id << '\n' << participant.first_name << '\n' << participant.last_name << '\n' << participant.age << '\n' << participant.gender << '\n';
+    return out;
+  }
+  friend std::istream& operator>>(std::istream& in, Participant& participant) {
+    in >> participant.id >> participant.first_name >> participant.last_name >> participant.age >> participant.gender;
+    return in;
+  }
 };
 
-
-std::string get_first_name() {
-  std::string first_name;
+void set_first_name(Participant& participant) {
   std::cout << "Enter your first name: ";
-  std::cin >> first_name;
-  if (!std::isupper(first_name[0]))
-    first_name[0] = std::toupper(first_name[0]);
-  return first_name;
+  std::cin >> participant.first_name;
+  if (!std::isupper(participant.first_name[0]))
+    participant.first_name[0] = std::toupper(participant.first_name[0]);
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-std::string get_last_name() {
-  std::string last_name;
+void set_last_name(Participant& participant) {
   std::cout << "Enter your last name: ";
-  std::cin >> last_name;
-  if (!std::isupper(last_name[0]))
-    last_name[0] = std::toupper(last_name[0]);
-  return last_name;
+  std::cin >> participant.last_name;
+  if (!std::isupper(participant.last_name[0]))
+    participant.last_name[0] = std::toupper(participant.last_name[0]);
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-int get_age(Participant& participant) {
-  int age;
-  std::cout << "Enter " << participant.get_name() << "'s age: ";
-  std::cin >> age;
-  return age;
-}
-
-std::string get_gender(Participant& participant) {
-  while (true) {
-    char gender;
-    std::cout << "Enter " << participant.get_name() << "'s gender [m/f]: ";
-    std::cin >> gender;
-    gender = std::tolower(gender);
-    if (gender == 'm') {
-      return "male";
-    } else if (gender == 'f') {
-      return "female";
+void set_age(Participant& participant) {
+  bool done = false;
+  while (!done) {
+    std::string name = participant.first_name + " " + participant.last_name; 
+    std::cout << "Enter " << name << "'s age: ";
+    std::string input_age;
+    std::cin >> input_age;
+    bool is_valid_number = true;
+    for (const auto &digit: input_age) {
+      if (!std::isdigit(digit))
+        is_valid_number = false; 
+    }
+    if (is_valid_number) {
+      participant.age = std::stoi(input_age);
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      done = true;
     } else {
-      std::cerr << "Input was invalid. Please enter a [m] for male and [f] for female. Try again.\n";
+      std::cerr << "Invalid input. Input must be an integer\n";
     }
   }
 }
 
+
+void set_gender(Participant& participant) {
+  bool done = false;
+  while (!done) {
+    char gender;
+    std::cout << "Enter " << participant.first_name + " " + participant.last_name << "'s gender [m/f]: ";
+    std::cin >> gender;
+    gender = std::tolower(gender);
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    if (gender == 'm') {
+      participant.gender = "Male";
+      done = true;
+    } else if (gender == 'f') {
+      participant.gender = "Female";
+      done = true;
+    }
+    else std::cerr << "Input was invalid. Please enter a [m] for male and [f] for female. Try again.\n";
+  }
+}
+
+void display(Participant& participant) {
+  std::cout << "Name: " << participant.first_name + " " << participant.last_name
+            << "\nAge: "  << participant.age << "\nGender: " << participant.gender << '\n';
+}
+
 int main() {
-  static int participant_number = 0;
-  static std::vector<Participant> participants;
+  static int number_of_participants = 0;
+  std::vector<Participant> participants;
   int option = 0;
   while (option != 4) {
     std::cout << "1. Add a New Participant\n"
@@ -128,88 +102,34 @@ int main() {
               << "Please enter a command to continue: ";
     std::cin >> option;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    switch(option) {
-      case 1:
-        {
-          Participant new_participant;
-          new_participant.set_participant_number(participant_number);
-          participant_number++;
-          new_participant.set_firstname(get_first_name());
-          new_participant.set_lastname(get_last_name());
-          new_participant.set_age(get_age(new_participant));
-          new_participant.set_gender(get_gender(new_participant));
+    if (option == 1) {
+      Participant new_participant;
+      new_participant.id = number_of_participants;
+      number_of_participants++;
+      set_first_name(new_participant);
+      set_last_name(new_participant);
+      set_age(new_participant);
+      set_gender(new_participant);
 
-          // write participant to file
-          std::ofstream participants_file("participant.dat", std::ios::binary);
-          participants_file.write(reinterpret_cast<const char*> (&new_participant), sizeof(Participant));
-          participants_file.close();
-          std::cout << '\n';
-          break;
-        }
-      case 2:
-        {
-          std::vector<Participant> participants;
-          std::ifstream input_file("participant.dat");
-          if (!input_file) {
-            std::cerr << "The file does not exist!\n";
-            return 1;
-          }
-          Participant participant;
-          while (input_file) {
-            input_file.read(reinterpret_cast<char *> (&participant), sizeof(Participant));
-            participants.push_back(participant);
-            //participant.display();
-          }
-
-         // for (auto &participant : participants) {
-         //   participant.display();
-         // }
-         // input_file.close();
-          break;
-        }
-      case 3:
-
-        if (participants.empty()) {
-          std::cerr << "You must first add participants. Press one to add a new participant\n";
-        } else {
-          for (auto &participant : participants) {
-            std::cout << participant;
-          }
-        }
-        break;
-      case 4:
-        break;
-      default:
-        std::cerr << "Input is not a valid option. Please select again..\n";
-        break;
+      std::ofstream participants_file;
+      participants_file.open("participant.dat", std::ios::app);
+      participants_file << new_participant;
+      participants_file.close();
+    } else if (option == 2) {
+      std::ifstream input_file("participant.dat");
+      if (input_file.fail()) {
+        std::cerr << "The file does not exist!\n";
+        return 1;
+      }
+      Participant participant;
+      while (input_file >> participant) {
+        participants.push_back(participant);
+      }
+      input_file.close();
+    }
+    std::cout << "participants size: " << participants.size() << '\n';
+    for (auto &participant : participants) {
+      display(participant);
     }
   }
 }
-
-//class Participants {
-//public:
-//  Participants() {
-//    static std::vector<Participant> participants = {};
-//  }
-//  void display_participants();
-//  //void delete_a_participant(Participant participant_to_be_deleted) {
-//  //  auto it = std::find(participants.begin(), participants.end(), participant_to_be_deleted);
-//  //  if (it != participants.end()) {
-//  //    participants.erase(it);
-//  //  } else {
-//  //    std::cerr << "User is not found\n";
-//  //  }
-//  //}
-//  void add_a_participant(Participant new_participant) {
-//    participants.push_back(new_participant);
-//  }
-//
-//  //bool is_empty() {
-//  //  if (this->participants.empty())
-//  //    return true;
-//  //  else 
-//  //    return false;
-//  //}
-//private:
-//  static std::vector<Participant> participants;
-//};
