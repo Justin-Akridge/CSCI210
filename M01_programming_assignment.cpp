@@ -91,6 +91,43 @@ void display(Participant& participant) {
             << "\nAge: "  << participant.age << "\nGender: " << participant.gender << '\n';
 }
 
+bool validate_input(char input) {
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  if (!std::islower(input)) {
+    input = std::tolower(input);
+  }
+  if (input == 'y' || input == 'n') {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void take_study_mor_survery() {
+  char input; 
+  bool done = false;
+  while (!done) {
+    std::cout <<"Did you have any headaches using StudyMor? [y/n]: ";
+    std::cin >> input;
+    if (input) {
+      done = true;
+    } else {
+      std::cerr << "Input is invalid. Please enter a [y] for yes and [n] for no\n";
+    }
+  }
+  
+  done = false
+  std::cout <<"Did you have any constipation using StudyMor? [y/n]: ";
+
+  std::cout <<"Did you experience any difficulty sleeping while using StudyMor? [y/n]: ";
+  std::cout <<"List any other potential side effects, you experienced using StudyMor\nSide effects: ";
+  std::vector<std::string> side_effects;
+  std::string side_effect;
+  while (std::cin >> side_effect) {
+    side_effects.push_back(side_effect);
+  }
+  std::cout <<"Did you feel like you could study more using StudyMor? [y/n]: ";
+}
 int main() {
   static int number_of_participants = 0;
   std::vector<Participant> participants;
@@ -116,7 +153,9 @@ int main() {
       set_gender(new_participant);
 
       std::ofstream participants_file;
-      //[] TODO: read and write files in binary for faster speeds.
+      //[] TODO: Convert to write files in binary for faster write time. Do this below.
+      //participants_file.open("participant.dat", std::ios::app);
+      //participants_file.write(reinterpret_cast<const char*> (&new_participant), sizeof(Participant));
       participants_file.open("participant.dat", std::ios::app);
       if (!participants_file) {
         std::cerr << "Error: Cannot open file!\n";
@@ -129,6 +168,9 @@ int main() {
         std::cerr << "The file does not exist!\n";
         return 1;
       }
+
+      // [_] TODO: Convert to read binary file for faster read time. Do this below
+      //participants_file.write(reinterpret_cast<const char*> (&new_participant), sizeof(Participant));
       Participant participant;
       while (input_file >> participant) {
         participants.push_back(participant);
