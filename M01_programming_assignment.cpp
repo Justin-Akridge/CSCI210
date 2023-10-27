@@ -17,6 +17,7 @@ struct Participant {
   std::string last_name;
   int age;
   std::string gender;
+  bool study_mor = false;
   friend std::ostream& operator<<(std::ostream& out, const Participant& participant) {
     out << participant.id << '\n' << participant.first_name << '\n' << participant.last_name << '\n' << participant.age << '\n' << participant.gender << '\n';
     return out;
@@ -96,15 +97,18 @@ int main() {
   int option = 0;
   while (option != 4) {
     std::cout << "1. Add a New Participant\n"
-              << "2. Collect Survey for Participant\n"
-              << "3. Display Participants\n"
-              << "4. Quit\n\n"
-              << "Please enter a command to continue: ";
+                   << "2. Collect Survey for Participant\n"
+                   << "3. Display Participants\n"
+                   << "4. Quit\n\n"
+                   << "Please enter a command to continue: ";
     std::cin >> option;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     if (option == 1) {
       Participant new_participant;
       new_participant.id = number_of_participants;
+      if (new_participant.id % 2 == 0) {
+        new_participant.study_mor = true;
+      }
       number_of_participants++;
       set_first_name(new_participant);
       set_last_name(new_participant);
@@ -112,7 +116,11 @@ int main() {
       set_gender(new_participant);
 
       std::ofstream participants_file;
+      //[] TODO: read and write files in binary for faster speeds.
       participants_file.open("participant.dat", std::ios::app);
+      if (!participants_file) {
+        std::cerr << "Error: Cannot open file!\n";
+      }
       participants_file << new_participant;
       participants_file.close();
     } else if (option == 2) {
@@ -127,9 +135,26 @@ int main() {
       }
       input_file.close();
     }
-    std::cout << "participants size: " << participants.size() << '\n';
+
+    // User needs to pick a participant to have take the survey
     for (auto &participant : participants) {
       display(participant);
+    }
+    bool done = false;
+    while (!done) {
+      std::cout << "\nPick a participant to take the survery: ";
+      int participant_chosen_id;
+      std::cin >> participant_chosen_id;
+      Participant participant_chosen;
+      for (int i = 0; i < participants.size(); i++) {
+        if (participants[i].id == participant_chosen_id) {
+          participant_chosen = participants[i];
+          done = true;
+        }
+      }
+      if (!done) {
+        std::cerr << "Participant chosen does not exist in the list. Please enter a valid ID.\n";
+      }
     }
   }
 }
