@@ -105,28 +105,74 @@ bool validate_input(char input) {
 
 void take_study_mor_survery() {
   char input; 
+  bool has_headaches = false;
   bool done = false;
   while (!done) {
     std::cout <<"Did you have any headaches using StudyMor? [y/n]: ";
     std::cin >> input;
-    if (input) {
+    if (validate_input(input)) {
       done = true;
     } else {
       std::cerr << "Input is invalid. Please enter a [y] for yes and [n] for no\n";
     }
   }
-  
-  done = false
-  std::cout <<"Did you have any constipation using StudyMor? [y/n]: ";
+  if (input == ' y') {
+    has_headaches = true;
+  }
 
-  std::cout <<"Did you experience any difficulty sleeping while using StudyMor? [y/n]: ";
-  std::cout <<"List any other potential side effects, you experienced using StudyMor\nSide effects: ";
+  bool has_constipation = false;
+  done = false;
+  while (!done) {
+    std::cout <<"Did you have any constipation using StudyMor? [y/n]: ";
+    std::cin >> input;
+    if (validate_input(input)) {
+      done = true;
+    } else {
+      std::cerr << "Input is invalid. Please enter a [y] for yes and [n] for no\n";
+    }
+  }
+  if (input == 'y') {
+    has_constipation = true;
+  }
+
+  bool has_difficulty_sleeping = false;
+  done = false;
+  while (!done) {
+    std::cout <<"Did you experience any difficulty sleeping while using StudyMor? [y/n]: ";
+    std::cin >> input;
+    if (validate_input(input)) {
+      done = true;
+    } else {
+      std::cerr << "Input is invalid. Please enter a [y] for yes and [n] for no\n";
+    }
+  }
+  if (input == 'y') {
+    has_difficulty_sleeping = true;
+  }
+
   std::vector<std::string> side_effects;
+  std::cout <<"List any other potential side effects, you experienced using StudyMor\nSide effects: ";
   std::string side_effect;
   while (std::cin >> side_effect) {
     side_effects.push_back(side_effect);
   }
-  std::cout <<"Did you feel like you could study more using StudyMor? [y/n]: ";
+
+  bool likes_study_mor = false;
+  done = false;
+  while (!done) { 
+    std::cout <<"Did you feel like you could study more using StudyMor? [y/n]: ";
+    std::cin >> input;
+    if (validate_input(input)) {
+      done = true;
+    } else {
+      std::cerr << "Input is invalid. Please enter a [y] for yes and [n] for no\n";
+    }
+  }
+  if (input == 'y') {
+    likes_study_mor = true;
+  }
+
+  // [_] TODO: all variables with participant id to file "survey.dat". 
 }
 int main() {
   static int number_of_participants = 0;
