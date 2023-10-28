@@ -103,7 +103,7 @@ bool validate_input(char input) {
   }
 }
 
-void take_study_mor_survery() {
+void take_study_mor_survery(int participant.id) {
   char input; 
   bool has_headaches = false;
   bool done = false;
@@ -116,7 +116,7 @@ void take_study_mor_survery() {
       std::cerr << "Input is invalid. Please enter a [y] for yes and [n] for no\n";
     }
   }
-  if (input == ' y') {
+  if (input == 'y') {
     has_headaches = true;
   }
 
@@ -151,7 +151,7 @@ void take_study_mor_survery() {
   }
 
   std::vector<std::string> side_effects;
-  std::cout <<"List any other potential side effects, you experienced using StudyMor\nSide effects: ";
+  std::cout << "List any other potential side effects, you experienced using StudyMor\nSide effects: ";
   std::string side_effect;
   while (std::cin >> side_effect) {
     side_effects.push_back(side_effect);
@@ -171,7 +171,15 @@ void take_study_mor_survery() {
   if (input == 'y') {
     likes_study_mor = true;
   }
+  std::ofstream out_file;
+  out_file.open("survery.dat", std::ios::app);
+  if (!out_file) {
+    std::cerr << "File is not found!\n";
+  }
 
+  out_file << has_headaches << has_constipation << has_difficulty_sleeping << likes_study_mor;
+  for (auto &side_effect : side_effects) {
+    out_file << side_effect;
   // [_] TODO: all variables with participant id to file "survey.dat". 
 }
 int main() {
@@ -180,10 +188,10 @@ int main() {
   int option = 0;
   while (option != 4) {
     std::cout << "1. Add a New Participant\n"
-                   << "2. Collect Survey for Participant\n"
-                   << "3. Display Participants\n"
-                   << "4. Quit\n\n"
-                   << "Please enter a command to continue: ";
+              << "2. Collect Survey for Participant\n"
+              << "3. Display Participants\n"
+              << "4. Quit\n\n"
+              << "Please enter a command to continue: ";
     std::cin >> option;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     if (option == 1) {
@@ -198,6 +206,8 @@ int main() {
       set_age(new_participant);
       set_gender(new_participant);
 
+      participants.push_back(new_participant);
+
       std::ofstream participants_file;
       //[] TODO: Convert to write files in binary for faster write time. Do this below.
       //participants_file.open("participant.dat", std::ios::app);
@@ -209,39 +219,49 @@ int main() {
       participants_file << new_participant;
       participants_file.close();
     } else if (option == 2) {
-      std::ifstream input_file("participant.dat");
-      if (input_file.fail()) {
-        std::cerr << "The file does not exist!\n";
-        return 1;
-      }
+      //std::ifstream input_file("participant.dat");
+      //if (input_file.fail()) {
+      //  std::cerr << "The file does not exist!\n";
+      //  return 1;
+      //}
 
-      // [_] TODO: Convert to read binary file for faster read time. Do this below
-      //participants_file.write(reinterpret_cast<const char*> (&new_participant), sizeof(Participant));
-      Participant participant;
-      while (input_file >> participant) {
-        participants.push_back(participant);
-      }
-      input_file.close();
-    }
+      //// [_] TODO: Convert to read binary file for faster read time. Do this below
+      ////participants_file.write(reinterpret_cast<const char*> (&new_participant), sizeof(Participant));
+      //Participant participant;
+      //while (input_file >> participant) {
+      //  participants.push_back(participant);
+      //}
+      //input_file.close();
 
-    // User needs to pick a participant to have take the survey
-    for (auto &participant : participants) {
-      display(participant);
-    }
-    bool done = false;
-    while (!done) {
-      std::cout << "\nPick a participant to take the survery: ";
+      //// User needs to pick a participant to have take the survey
+      //for (auto &participant : participants) {
+      //  display(participant);
+      //}
+      bool done = false;
       int participant_chosen_id;
-      std::cin >> participant_chosen_id;
-      Participant participant_chosen;
-      for (int i = 0; i < participants.size(); i++) {
-        if (participants[i].id == participant_chosen_id) {
-          participant_chosen = participants[i];
-          done = true;
+      while (!done) {
+        std::cout << "\nPick a participant to take the survery: ";
+        std::cin >> participant_chosen_id;
+        Participant participant_chosen;
+        for (int i = 0; i < participants.size(); i++) {
+          if (participants[i].id == participant_chosen_id) {
+            participant_chosen = participants[i];
+            done = true;
+          }
+        }
+        if (!done) {
+          std::cerr << "Participant chosen does not exist in the list. Please enter a valid ID.\n";
         }
       }
-      if (!done) {
-        std::cerr << "Participant chosen does not exist in the list. Please enter a valid ID.\n";
+      take_study_mor_survery(participants.id);
+    } else if (option == 3) {
+      for (int i = 0; i < participants.size(); i++) {
+        std::cout << "ID: " << participants[i].id << '\n' << "Study More survey: " << participants[i].study_mor << '\n';
+  //std::string first_name;
+  //std::string last_name;
+  //int age;
+  //std::string gender;
+  //bool study_mor = false;
       }
     }
   }
