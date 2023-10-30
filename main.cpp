@@ -154,10 +154,15 @@ void take_study_mor_survery(int id) {
   }
 
   std::vector<std::string> side_effects;
-  std::cout << "List any other potential side effects, you experienced using StudyMor\nSide effects: ";
-  std::string side_effect;
-  while (std::cin >> side_effect) {
-    side_effects.push_back(side_effect);
+  std::cout << "Do you have any potential side effects you experienced using StudyMor? [y/n]: ";
+  std::cin >> input;
+  if (input == 'y') {
+    std::string side_effect;
+    while (side_effect != "-1") {
+      std::cout << "Side effects (-1 to quit): ";
+      std::cin >> side_effect;
+      side_effects.push_back(side_effect);
+    }
   }
 
   bool likes_study_mor = false;
@@ -166,6 +171,7 @@ void take_study_mor_survery(int id) {
     std::cout <<"Did you feel like you could study more using StudyMor? [y/n]: ";
     std::cin >> input;
     if (validate_input(input)) {
+      std::cout << "\n\n";
       done = true;
     } else {
       std::cerr << "Input is invalid. Please enter a [y] for yes and [n] for no\n";
@@ -184,7 +190,7 @@ void take_study_mor_survery(int id) {
   time_t currentDate = time(NULL);
   strftime(formatDate, 80, "%F", localtime(&currentDate)); // for date and time "%F %T"
   std::string inv_date(formatDate);
-  out_file << inv_date << has_headaches << has_constipation << has_difficulty_sleeping << likes_study_mor;
+  out_file << id << inv_date << has_headaches << has_constipation << has_difficulty_sleeping << likes_study_mor;
   for (auto &side_effect : side_effects) {
     out_file << side_effect;
   // [_] TODO: all variables with participant id to file "survey.dat". 
@@ -250,7 +256,18 @@ int main() {
       bool done = false;
       int participant_chosen_id;
       while (!done) {
-        std::cout << "\nPick a participant to take the survery: ";
+        std::cout << "\nPick a participant to take the survery:\n";
+        for (int i = 0; i < participants.size(); i++) {
+          std::string name = participants[i].first_name + " " + participants[i].last_name;
+          std::cout << "ID: " << participants[i].id << "\nName: " << name << "\nAge: " 
+                    << participants[i].age << "\nGender: " << participants[i].gender << "\nStudy More survey: "; 
+        if (participants[i].study_mor) {
+          std::cout << "Yes\n\n";
+        } else {
+          std::cout << "No\n\n";
+        }
+        std::cout << "**********************************\n\n";
+      }
         std::cin >> participant_chosen_id;
         Participant participant_chosen;
         for (int i = 0; i < participants.size(); i++) {
@@ -267,8 +284,8 @@ int main() {
     } else if (option == 3) {
       for (int i = 0; i < participants.size(); i++) {
         std::string name = participants[i].first_name + " " + participants[i].last_name;
-        std::cout << "ID: " << participants[i].id << "\nName: " << name << "\nAge: " << participants[i].age << "\nGender: " << participants[i].gender << '\n';
-        std::cout << "Study More survey: "; 
+        std::cout << "ID: " << participants[i].id << "\nName: " << name << "\nAge: " << participants[i].age 
+                  << "\nGender: " << participants[i].gender << "\nStudy More survey: "; 
         if (participants[i].study_mor) {
           std::cout << "Yes\n\n";
         } else {
