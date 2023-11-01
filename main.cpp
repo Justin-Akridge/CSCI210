@@ -260,7 +260,7 @@ int main() {
         for (int i = 0; i < participants.size(); i++) {
           std::string name = participants[i].first_name + " " + participants[i].last_name;
           std::cout << "ID: " << participants[i].id << "\nName: " << name << "\nAge: " 
-                    << participants[i].age << "\nGender: " << participants[i].gender << "\nStudy More survey: "; 
+                    << participants[i].age << "\nGender: " << participants[i].gender << "\nStudyMor survey: "; 
         if (participants[i].study_mor) {
           std::cout << "Yes\n\n";
         } else {
